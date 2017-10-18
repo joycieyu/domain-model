@@ -36,11 +36,11 @@ public struct Money {
     }
 
     public func add(_ to: Money) -> Money {
-        return Money(amount: self.amount + to.amount, currency)
+        return Money(amount: self.amount + to.amount, currency: self.currency)
     }
     
     public func subtract(_ from: Money) -> Money {
-        return Money(amount: self.amount - from.amount, currency)
+        return Money(amount: self.amount - from.amount, currency: self.currency)
     }
 }
 
