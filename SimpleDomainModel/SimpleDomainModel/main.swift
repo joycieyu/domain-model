@@ -24,22 +24,78 @@ open class TestMe {
 // Money
 //
 public struct Money {
-    public var amount : Int
+    public var amount : Double
     public var currency : String
 
-    init(amount : Int, currency: String) {
+    init(amount : Double, currency: String) {
         self.amount = amount
         self.currency = currency
+        return
     }
     public func convert(_ to: String) -> Money {
-        return self
+        switch self.currency {
+        case "USD" :
+            switch to {
+            case "GBP":
+                return Money(amount: self.amount * 0.5, currency: "GBP" )
+            case "EUR":
+                return Money(amount: self.amount * 1.5, currency: "EUR" )
+            case "CAN":
+               return Money(amount: self.amount * 1.25, currency: "CAN" )
+            default :
+                return self
+            }
+        case "GBP" :
+            switch to {
+            case "USD" :
+                return Money(amount: self.amount * 2, currency: "USD" )
+            case "EUR":
+                return Money(amount: self.amount * 3, currency: "EUR" )
+            case "CAN":
+                return Money(amount: self.amount * 1.64, currency: "CAN" )
+            default :
+                return self
+            }
+        case "EUR" :
+            switch to {
+            case "USD" :
+                return Money(amount: self.amount * (2/3), currency: "USD" )
+            case "GBP":
+                return Money(amount: self.amount * 0.9, currency: "GBP" )
+            case "CAN":
+                return Money(amount: self.amount * 0.83, currency: "CAN" )
+            default :
+                return self
+            }
+        case "CAN" :
+            switch to {
+            case "USD" :
+                return Money(amount: self.amount * 0.8, currency: "USD" )
+            case "GBP":
+                return Money(amount: self.amount * (1/3), currency: "GBP" )
+            case "EUR":
+                return Money(amount: self.amount * 1.2, currency: "EUR" )
+            default :
+                return self
+            }
+        default :
+            return self
+        }
     }
-
+    
     public func add(_ to: Money) -> Money {
+        if (to.currency != self.currency) {
+            let selfConverted = self.convert(to.currency)
+            return Money(amount: to.amount + selfConverted.amount, currency: to.currency)
+        }
         return Money(amount: self.amount + to.amount, currency: self.currency)
     }
     
     public func subtract(_ from: Money) -> Money {
+        if (from.currency != self.currency) {
+            let selfConverted = self.convert(from.currency)
+            return Money(amount: self.amount - selfConverted.amount, currency: from.currency)
+        }
         return Money(amount: self.amount - from.amount, currency: self.currency)
     }
 }
@@ -59,13 +115,25 @@ open class Job {
   public init(title : String, type : JobType) {
     self.title = title
     self.type = type
+    return
   }
   
   open func calculateIncome(_ hours: Int) -> Int {
-    return self.type.Hourly * hours
+    switch type {
+        case .Hourly(let pay) :
+        return Int(Double(hours) * pay)
+    case .Salary(let pay) :
+        return pay
+    }
   }
   
   open func raise(_ amt : Double) {
+    switch type {
+    case .Hourly(var pay) :
+        pay = pay + amt
+    case .Salary(var pay) :
+       pay = Int(Double(pay) + amt)
+    }
   }
 }
 
@@ -76,30 +144,35 @@ open class Person {
   open var firstName : String = ""
   open var lastName : String = ""
   open var age : Int = 0
-
+    
+    public init(firstName : String, lastName: String, age : Int) {
+        self.firstName = firstName
+        self.lastName = lastName
+        self.age = age
+        return
+    }
   fileprivate var _job : Job? = nil
   open var job : Job? {
-    get { }
+    get {
+        return self.job
+    }
     set(value) {
+        self.job = value
     }
   }
   
   fileprivate var _spouse : Person? = nil
   open var spouse : Person? {
-    get { }
+    get {
+        return self.spouse
+    }
     set(value) {
+        self.spouse = value
     }
   }
   
-  public init(firstName : String, lastName: String, age : Int) {
-    self.firstName = firstName
-    self.lastName = lastName
-    self.age = age
-    return
-  }
-  
   open func toString() -> String {
-    return self.firstName + " " + self.lastName
+    return "[Person: firstName:\(self.firstName) lastName:\(self.lastName) age:\(self.age) job:\(self.job) spouse:\(self.spouse)]"
   }
 }
 
@@ -116,11 +189,16 @@ open class Family {
   }
   
   open func haveChild(_ child: Person) -> Bool {
-    return members.contains(where: (child) -> Bool)
+    //return members.contains(where: child -> Bool)
+    return false
   }
   
   open func householdIncome() -> Int {
-    return sum(members.income)
+    var sum = 0
+    for person in members {
+        //sum += person.job.calculateIncome(0)
+    }
+    return sum
   }
 }
 
